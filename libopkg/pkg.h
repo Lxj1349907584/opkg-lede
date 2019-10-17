@@ -248,6 +248,7 @@ int pkg_merge(pkg_t * oldpkg, pkg_t * newpkg);
 char *pkg_version_str_alloc(pkg_t * pkg);
 
 int pkg_compare_versions(const pkg_t *pkg, const pkg_t *ref_pkg);
+int pkg_is_installable(const pkg_t * pkg);
 int pkg_name_version_and_architecture_compare(const void *a, const void *b);
 int abstract_pkg_name_compare(const void *a, const void *b);
 

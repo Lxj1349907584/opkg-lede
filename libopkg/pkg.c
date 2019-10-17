@@ -1084,10 +1084,31 @@ int pkg_version_satisfied(pkg_t * it, pkg_t * ref, const char *op)
 	return 0;
 }
 
+int pkg_is_installable(const pkg_t *pkg)
+{
+	compound_depend_t *dep = pkg_get_depends((pkg_t *)pkg, DEPEND);
+
+	for (; dep && dep->type; dep++) {
+		int i, ok = 0;
+		if (dep->type != DEPEND)
+			continue;
+		for (i = 0; i < dep->possibility_count; i++) {
+			if (pkg_dependence_satisfiable(dep->possibilities[i])) {
+				ok = 1;
+				break;
+			}
+		}
+		if (!ok)
+			return 0;
+	}
+	return 1;
+}
+
 int pkg_name_version_and_architecture_compare(const void *p1, const void *p2)
 {
 	const pkg_t * a = *(const pkg_t **)p1;
 	const pkg_t * b = *(const pkg_t **)p2;
+	int installcmp;
 	int namecmp;
 	int vercmp;
 	int arch_prio1, arch_prio2;
@@ -1097,6 +1118,9 @@ int pkg_name_version_and_architecture_compare(const void *p1, const void *p2)
 		return 0;
 	}
 
+	installcmp = pkg_is_installable(a) - pkg_is_installable(b);
+	if (installcmp)
+		return installcmp;
 	namecmp = strcmp(a->name, b->name);
 	if (namecmp)
 		return namecmp;
